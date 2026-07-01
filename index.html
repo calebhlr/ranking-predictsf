@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PredictSF | Ranking Geral</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-background: #07162A;
+            --color-surface: #102340;
+            --color-border: #1E4B82;
+            --color-primary: #2F80FF;
+            --color-text: #FFFFFF;
+            --color-muted: #A9B6C9;
+            --shadow-premium: 0 18px 42px rgba(0, 0, 0, 0.24);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #07162A;
+            font-family: 'Inter', sans-serif;
+            color: #FFFFFF;
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.5;
+        }
+
+        body {
+            min-width: 320px;
+            min-height: 100vh;
+            margin: 0;
+            overflow-x: hidden;
+            background:
+                radial-gradient(circle at top, rgba(47, 128, 255, 0.18), transparent 34rem),
+                var(--color-background);
+            color: var(--color-text);
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        .page-shell {
+            width: min(100% - 32px, 700px);
+            margin: 0 auto;
+            padding: 32px 0;
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        .header {
+            text-align: center;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .poppins {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .header-title {
+            margin: 0 0 12px;
+            font-size: clamp(2rem, 8vw, 2.5rem);
+            font-weight: 700;
+            letter-spacing: -0.03em;
+        }
+
+        .header-subtitle {
+            margin: 0 0 8px;
+            color: var(--color-text);
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+
+        .header-description,
+        .ranking-status {
+            color: var(--color-muted);
+            font-size: 0.875rem;
+        }
+
+        .ranking-section {
+            border: 1px solid rgba(30, 75, 130, 0.56);
+            border-radius: 24px;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.03);
+            box-shadow: var(--shadow-premium);
+            backdrop-filter: blur(20px);
+        }
+
+        .ranking-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            animation: fadeIn 0.8s ease-out 0.2s both;
+        }
+
+        .player-card {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            width: 100%;
+            min-width: 0;
+            padding: 16px;
+            border: 1px solid var(--color-border);
+            border-radius: 16px;
+            background: linear-gradient(180deg, rgba(16, 35, 64, 0.98), rgba(16, 35, 64, 0.86));
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+        }
+
+        .player-card:hover {
+            border-color: var(--color-primary);
+            box-shadow: 0 8px 24px rgba(47, 128, 255, 0.12);
+            transform: translateY(-2px);
+        }
+
+        .position,
+        .medal {
+            min-width: 48px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .position {
+            color: var(--color-primary);
+            font-size: 1.75rem;
+            font-weight: 700;
+        }
+
+        .medal {
+            font-size: 2rem;
+        }
+
+        .avatar {
+            display: grid;
+            place-items: center;
+            width: 48px;
+            height: 48px;
+            flex-shrink: 0;
+            border: 2px solid rgba(47, 128, 255, 0.3);
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-border) 100%);
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .player-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .player-name {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 4px;
+            overflow-wrap: anywhere;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .player-points,
+        .points-label {
+            color: var(--color-muted);
+            font-size: 0.875rem;
+        }
+
+        .points-display {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+            flex-shrink: 0;
+            text-align: right;
+        }
+
+        .points-value {
+            color: var(--color-primary);
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .points-label {
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .ranking-status {
+            margin: 0;
+            padding: 24px 12px;
+            text-align: center;
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        .status-message {
+            color: #A9B6C9;
+            padding: 24px 16px;
+            text-align: center;
+        }
+
+        .status-error {
+            color: #FFB4B4;
+        }
+
+        .footer {
+            color: #A9B6C9;
+            font-size: 0.75rem;
+            margin-top: 24px;
+            text-align: center;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .page-shell {
+                width: min(100% - 24px, 700px);
+                padding: 24px 0;
+            }
+
+            .ranking-section {
+                padding: 12px;
+                border-radius: 20px;
+            }
+
+            .player-card {
+                gap: 12px;
+                padding: 14px;
+            }
+
+            .position,
+            .medal {
+                min-width: 36px;
+            }
+
+            .position {
+                font-size: 1.5rem;
+            }
+
+            .medal {
+                font-size: 1.75rem;
+            }
+
+            .avatar {
+                width: 44px;
+                height: 44px;
+                font-size: 1.125rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-ranking">
+        <!-- Header -->
+        <header class="header">
+            <h1 class="header-title poppins"><span aria-hidden="true">🏆</span> PredictSF</h1>
+            <h2 class="header-subtitle poppins">Ranking Geral</h2>
+            <p class="header-description">Atualizado automaticamente a partir do arquivo ranking.json</p>
+        </header>
+
+        <!-- Ranking List -->
+        <main class="ranking-list" id="rankingContainer" aria-live="polite" aria-busy="false">
+            <!-- Players will be rendered here -->
+        </main>
+
+        <footer class="footer">
+            <span id="updatedAt">Pronto para atualização</span>
+            <span class="sr-only">Ranking carregado a partir do arquivo ranking.json</span>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
