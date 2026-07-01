@@ -13,6 +13,7 @@
     :root{
         --ink:#0A0A0A;
         --paper:#F5F3EC;
+        --mow:#E8E3D4;
         --yellow:#FFE600;
         --red:#FF3300;
         --line:#0A0A0A;
@@ -20,16 +21,24 @@
 
     *{ margin:0; padding:0; box-sizing:border-box; }
 
-    body{
+    html{
         background:var(--paper);
-        background-image:
-            linear-gradient(var(--line) 1px, transparent 1px),
-            linear-gradient(90deg, var(--line) 1px, transparent 1px);
-        background-size: 28px 28px;
-        background-position: -1px -1px;
+        background-image: repeating-linear-gradient(
+            135deg,
+            var(--paper) 0px,
+            var(--paper) 56px,
+            var(--mow) 56px,
+            var(--mow) 112px
+        );
+        min-height:100%;
+    }
+
+    body{
+        background:transparent;
         color:var(--ink);
         font-family:'JetBrains Mono', monospace;
         min-height:100vh;
+        min-height:100dvh;
         padding:24px 16px 64px;
     }
 
@@ -74,7 +83,6 @@
         line-height:.95;
         letter-spacing:-0.02em;
         text-transform:uppercase;
-        margin-top:6px;
     }
 
     .subtitle{
@@ -85,6 +93,10 @@
         margin-top:10px;
         border-top:2px solid var(--yellow);
         padding-top:10px;
+    }
+
+    .subtitle-yellow{
+        color:var(--yellow);
     }
 
     .badge{
@@ -223,6 +235,15 @@
     }
 
     @media (max-width:520px){
+        html{
+            background-image: repeating-linear-gradient(
+                135deg,
+                var(--paper) 0px,
+                var(--paper) 32px,
+                var(--mow) 32px,
+                var(--mow) 64px
+            );
+        }
         .title{ font-size:1.9rem; }
         .player-card{
             grid-template-columns:44px 40px 1fr auto;
@@ -241,12 +262,11 @@
         <header class="masthead">
             <div class="masthead-top">
                 <div>
-                    <div class="kicker">Placar Oficial</div>
                     <h1 class="title">PredictSF</h1>
                 </div>
                 <span class="badge" id="playerCountBadge">— jogadores</span>
             </div>
-            <p class="subtitle">Ranking Geral · Dados embutidos nesta página</p>
+            <p class="subtitle subtitle-yellow">Ranking Geral</p>
         </header>
 
         <main class="ranking-list" id="rankingContainer" aria-live="polite" aria-busy="false">
