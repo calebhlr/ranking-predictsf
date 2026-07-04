@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Predictsf</title>
+<title>PredictSF — Ranking Geral</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -162,9 +162,23 @@
         font-weight:800;
         font-size:1.1rem;
         font-family:'Space Grotesk', sans-serif;
+        overflow:hidden;
+    }
+
+    .avatar.has-image{
+        background:var(--paper);
+    }
+
+    .avatar img{
+        width:100%;
+        height:100%;
+        object-fit:cover;
+        object-position:top center;
+        display:block;
     }
 
     .player-card.rank-1 .avatar{ background:var(--red); color:var(--paper); border-color:var(--ink); }
+    .player-card.rank-1 .avatar.has-image{ background:var(--paper); }
 
     .player-info{ min-width:0; }
 
@@ -423,15 +437,15 @@
 {
     "updatedAt": "02/07/2026",
     "players": [
-        { "id": 1, "name": "Caleb", "avatar": "C", "points": 3, "streak": 8 },
-        { "id": 2, "name": "Yago", "avatar": "Y", "points": 4, "streak": 7 },
-        { "id": 3, "name": "Vitor", "avatar": "V", "points": 4, "streak": 5 },
-        { "id": 4, "name": "Daniel", "avatar": "D", "points": 3, "streak": 3 },
-        { "id": 5, "name": "Tassinari", "avatar": "T", "points": 1, "streak": 9 },
-        { "id": 6, "name": "Henrique", "avatar": "H", "points": 0, "streak": 4 },
-        { "id": 7, "name": "Estevão", "avatar": "E", "points": 3, "streak": 6 },
-        { "id": 8, "name": "Rafael", "avatar": "R", "points": 3, "streak": 8 },
-        { "id": 9, "name": "JV", "avatar": "J", "points": 2, "streak": 5 }
+        { "id": 1, "name": "Caleb", "avatar": "C", "points": 1, "streak": 0, "image": "avatars/kakacartoon.webp" },
+        { "id": 2, "name": "Yago", "avatar": "Y", "points": 2, "streak": 1, "image": "avatars/riberycartoon-1.webp" },
+        { "id": 3, "name": "Vitor", "avatar": "V", "points": 3, "streak": 1, "image": "avatars/neymarcartoon.webp" },
+        { "id": 4, "name": "Daniel", "avatar": "D", "points": 3, "streak": 0, "image": "avatars/pepecabecao.webp" },
+        { "id": 5, "name": "Tassinari", "avatar": "T", "points": 0, "streak": 0, "image": "avatars/debruynecartoon.webp" },
+        { "id": 6, "name": "Henrique", "avatar": "H", "points": 0, "streak": 0, "image": "avatars/haalandcartoon.webp" },
+        { "id": 7, "name": "Estevão", "avatar": "E", "points": 3, "streak": 0, "image": "avatars/vinijacartoon-2.webp" },
+        { "id": 8, "name": "Rafael", "avatar": "R", "points": 2, "streak": 1, "image": "avatars/rooneycartoon.webp" },
+        { "id": 9, "name": "JV", "avatar": "J", "points": 2, "streak": 1, "image": "avatars/cr7cartoon.webp" }
     ]
 }
     </script>
@@ -481,9 +495,24 @@
             avatarWrap.className = 'avatar-wrap';
 
             const avatar = document.createElement('div');
-            avatar.className = 'avatar';
-            avatar.textContent = player.avatar.trim().slice(0, 2).toUpperCase();
             avatar.setAttribute('aria-hidden', 'true');
+
+            if (typeof player.image === 'string' && player.image.trim()) {
+                avatar.className = 'avatar has-image';
+                const img = document.createElement('img');
+                img.src = player.image.trim();
+                img.alt = '';
+                img.loading = 'lazy';
+                img.onerror = function () {
+                    avatar.classList.remove('has-image');
+                    avatar.innerHTML = '';
+                    avatar.textContent = player.avatar.trim().slice(0, 2).toUpperCase();
+                };
+                avatar.appendChild(img);
+            } else {
+                avatar.className = 'avatar';
+                avatar.textContent = player.avatar.trim().slice(0, 2).toUpperCase();
+            }
             avatarWrap.appendChild(avatar);
 
             const streak = getStreak(player);
