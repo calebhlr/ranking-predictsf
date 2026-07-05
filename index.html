@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PredictSF</title>
+<title>PredictSF — Ranking Geral</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -178,7 +178,6 @@
     }
 
     .player-card.rank-1 .avatar{ background:var(--red); color:var(--paper); border-color:var(--ink); }
-    .player-card.rank-1 .avatar.has-image{ background:var(--paper); }
 
     .player-info{ min-width:0; }
 
@@ -435,17 +434,17 @@
 
     <script type="application/json" id="rankingData">
 {
-    "updatedAt": "05/07/2026",
+    "updatedAt": "02/07/2026",
     "players": [
-        { "id": 1, "name": "Caleb", "avatar": "C", "points": 0, "streak": 1, "image": "avatars/kakacartoon.webp" },
-        { "id": 2, "name": "Yago", "avatar": "Y", "points": 0, "streak": 1, "image": "avatars/riberycartoon-1.webp" },
-        { "id": 3, "name": "Vitor", "avatar": "V", "points": 0, "streak": 1, "image": "avatars/neymarcartoon.webp" },
-        { "id": 4, "name": "Daniel", "avatar": "D", "points": 0, "streak": 2, "image": "avatars/pepecabecao.webp" },
-        { "id": 5, "name": "Tassinari", "avatar": "T", "points": 0, "streak": 2, "image": "avatars/debruynecartoon.webp" },
-        { "id": 6, "name": "Henrique", "avatar": "H", "points": 0, "streak": 2, "image": "avatars/haalandcartoon.webp" },
-        { "id": 7, "name": "Estevão", "avatar": "E", "points": 0, "streak": 0, "image": "avatars/vinijacartoon-2.webp" },
-        { "id": 8, "name": "Rafael", "avatar": "R", "points": 0, "streak": 1, "image": "avatars/rooneycartoon.webp" },
-        { "id": 9, "name": "JV", "avatar": "J", "points": 0, "streak": 2, "image": "avatars/cr7cartoon.webp" }
+        { "id": 1, "name": "Caleb", "avatar": "C", "points": 1, "streak": 0, "image": "avatars/kakacartoon.webp" },
+        { "id": 2, "name": "Yago", "avatar": "Y", "points": 2, "streak": 1, "image": "avatars/riberycartoon-1.webp" },
+        { "id": 3, "name": "Vitor", "avatar": "V", "points": 3, "streak": 1, "image": "avatars/neymarcartoon.webp" },
+        { "id": 4, "name": "Daniel", "avatar": "D", "points": 3, "streak": 0, "image": "avatars/pepecabecao.webp" },
+        { "id": 5, "name": "Tassinari", "avatar": "T", "points": 0, "streak": 0, "image": "avatars/debruynecartoon.webp" },
+        { "id": 6, "name": "Henrique", "avatar": "H", "points": 0, "streak": 0, "image": "avatars/haalandcartoon.webp" },
+        { "id": 7, "name": "Estevão", "avatar": "E", "points": 3, "streak": 0, "image": "avatars/vinijacartoon-2.webp" },
+        { "id": 8, "name": "Rafael", "avatar": "R", "points": 2, "streak": 1, "image": "avatars/rooneycartoon.webp" },
+        { "id": 9, "name": "JV", "avatar": "J", "points": 2, "streak": 1, "image": "avatars/cr7cartoon.webp" }
     ]
 }
     </script>
@@ -593,23 +592,97 @@
             badge.textContent = `${n} ${n === 1 ? 'jogador' : 'jogadores'}`;
         }
 
-        function init() {
+        // Cole aqui o link de publicação CSV da sua planilha do Google.
+        // Deixe como string vazia '' para usar sempre os dados embutidos no HTML.
+        const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTMBLu4gyoytsY-MPxgkYyXA_AK0X474tphiR0uptwhWwUP6dlkaYfrfg2BFLtEjuOE9F6crVe6BsW4/pub?gid=0&single=true&output=csv';
+
+        function parseCsv(text) {
+            const lines = text.trim().split(/\r?\n/);
+            const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+            return lines.slice(1).filter(line => line.trim()).map(line => {
+                const cells = line.split(',').map(c => c.trim());
+                const row = {};
+                headers.forEach((header, i) => { row[header] = cells[i] !== undefined ? cells[i] : ''; });
+                return row;
+            });
+        }
+
+        function resolveImagePath(rawValue) {
+            const value = (rawValue || '').trim();
+            if (!value) return '';
+            if (value.includes('/') || value.startsWith('http')) return value;
+            return `avatars/${value}`;
+        }
+
+        function playersFromSheetRows(rows) {
+            return rows
+                .filter(row => row.name && row.name.trim())
+                .map((row, i) => ({
+                    id: i + 1,
+                    name: row.name.trim(),
+                    avatar: row.name.trim().charAt(0).toUpperCase(),
+                    points: Number(row.points) || 0,
+                    streak: Number(row.streak) || 0,
+                    image: resolveImagePath(row.image)
+                }));
+        }
+
+        async function loadFromSheet() {
+            if (!SHEET_CSV_URL) return null;
+            const response = await fetch(SHEET_CSV_URL, { cache: 'no-store' });
+            if (!response.ok) throw new Error('Falha ao buscar a planilha.');
+            const csvText = await response.text();
+            const rows = parseCsv(csvText);
+            const players = playersFromSheetRows(rows);
+            const updatedAt = rows.length && rows[0].updatedat ? rows[0].updatedat.trim() : null;
+            return { players, updatedAt };
+        }
+
+        function loadFromEmbeddedData() {
+            const dataElement = document.getElementById('rankingData');
+            if (!dataElement || !dataElement.textContent.trim()) {
+                throw new Error('Bloco de dados JSON não encontrado na página.');
+            }
+            const rawData = JSON.parse(dataElement.textContent);
+            const players = Array.isArray(rawData) ? rawData : rawData.players;
+            const updatedAt = Array.isArray(rawData) ? null : rawData.updatedAt;
+            if (!Array.isArray(players)) {
+                throw new Error('Formato de dados inválido: esperado uma lista de jogadores.');
+            }
+            return { players, updatedAt };
+        }
+
+        async function init() {
             const container = document.getElementById('rankingContainer');
+            let players = [];
+            let updatedAtText = null;
+
             try {
-                const dataElement = document.getElementById('rankingData');
-                if (!dataElement || !dataElement.textContent.trim()) {
-                    throw new Error('Bloco de dados JSON não encontrado na página.');
+                const sheetData = await loadFromSheet();
+                if (sheetData && sheetData.players.length > 0) {
+                    players = sheetData.players;
+                    updatedAtText = sheetData.updatedAt;
+                } else {
+                    const embedded = loadFromEmbeddedData();
+                    players = embedded.players;
+                    updatedAtText = embedded.updatedAt;
                 }
-
-                const rawData = JSON.parse(dataElement.textContent);
-                const rawPlayers = Array.isArray(rawData) ? rawData : rawData.players;
-                const updatedAtText = Array.isArray(rawData) ? null : rawData.updatedAt;
-
-                if (!Array.isArray(rawPlayers)) {
-                    throw new Error('Formato de dados inválido: esperado uma lista de jogadores.');
+            } catch (sheetError) {
+                console.warn('Não foi possível carregar da planilha, usando dados embutidos:', sheetError);
+                try {
+                    const embedded = loadFromEmbeddedData();
+                    players = embedded.players;
+                    updatedAtText = embedded.updatedAt;
+                } catch (embeddedError) {
+                    console.error('Erro ao renderizar ranking:', embeddedError);
+                    renderStatus('Não foi possível ler os dados do ranking. Confira a planilha ou o JSON embutido nesta página.', 'error');
+                    container.setAttribute('aria-busy', 'false');
+                    return;
                 }
+            }
 
-                const sortedPlayers = sortPlayers(rawPlayers);
+            try {
+                const sortedPlayers = sortPlayers(players);
 
                 if (sortedPlayers.length === 0) {
                     renderStatus('Nenhum dado disponível no momento.');
@@ -623,7 +696,7 @@
                 container.setAttribute('aria-busy', 'false');
             } catch (error) {
                 console.error('Erro ao renderizar ranking:', error);
-                renderStatus('Não foi possível ler os dados do ranking. Confira o JSON embutido nesta página.', 'error');
+                renderStatus('Não foi possível processar os dados do ranking.', 'error');
                 container.setAttribute('aria-busy', 'false');
             }
         }
